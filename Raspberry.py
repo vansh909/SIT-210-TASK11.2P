@@ -12,7 +12,7 @@ topic = "PhValuezzz"
 # GPIO pins for servo motors
 SERVO_PIN_1 = 17  # GPIO pin for servo 1
 SERVO_PIN_2 = 18  # GPIO pin for servo 2
-FEEDER_PIN = 22  # GPIO pin for the feeder servo
+FEEDER_PIN = 27  # GPIO pin for the feeder servo
 
 # Initialize GPIO
 GPIO.setmode(GPIO.BCM)
@@ -21,44 +21,92 @@ GPIO.setup(SERVO_PIN_2, GPIO.OUT)
 GPIO.setup(FEEDER_PIN, GPIO.OUT)
 
 # Servo PWM initialization
-servo_pwm_1 = GPIO.PWM(SERVO_PIN_1, 50)  # 50 Hz frequency
-servo_pwm_2 = GPIO.PWM(SERVO_PIN_2, 50)  # 50 Hz frequency
-feeder_pwm = GPIO.PWM(FEEDER_PIN, 50)  # 50 Hz frequency
+pwm = GPIO.PWM(SERVO_PIN_1, 50)  # 50 Hz frequency
+pwm_2 = GPIO.PWM(SERVO_PIN_2, 50)  # 50 Hz frequency
+pwm_3 = GPIO.PWM(FEEDER_PIN, 50)  # 50 Hz frequency
 
-# Start PWM with 0 duty cycle (off)
-servo_pwm_1.start(0)
-servo_pwm_2.start(0)
-feeder_pwm.start(0)
+# Start PWM with 0 duty ycle (off)
+
+#servo_pwm_2.start(0)
+#feeder_pwm.start(0)
 
 # Function to control servo 1
 def control_servo_1():
-    action_label.config(text="Dispensing reagent using servo 1")
+    action_label.config(text="Dispensing Sodium Bicarbonate for maintaining the pH")
     # Simulate servo control for dispensing reagent for pH below 7
     # Adjust duty cycle as needed for your servo and setup
-    servo_pwm_1.ChangeDutyCycle(7)  # Change duty cycle for appropriate movement
+   # servo_pwm_1.ChangeDutyCycle(7)
+    # Change duty cycle for appropriate movement
+    # Move from 0 to 180 degrees
+    pwm.start(0)
+    for dc in range(0, 181, 5):
+        pwm.ChangeDutyCycle(dc / 18 + 2)
+
+        # Pause at 180 degrees for 2 seconds
+    time.sleep(1)
+
+        # Move from 180 to 0 degrees
+    for dc in range(180, -1, -5):
+        pwm.ChangeDutyCycle(dc / 18 + 2)
+            
+
+        # Pause at 0 degrees for 2 seconds
+    time.sleep(1)
+    
 
 # Function to control servo 2
 def control_servo_2():
-    action_label.config(text="Dispensing reagent using servo 2")
+    action_label.config(text="Dispensing Citric Acid for maintaining the ph")
     # Simulate servo control for dispensing reagent for pH above 8
     # Adjust duty cycle as needed for your servo and setup
-    servo_pwm_2.ChangeDutyCycle(7)  # Change duty cycle for appropriate movement
+    #servo_pwm_2.ChangeDutyCycle(7)  # Change duty cycle for appropriate movement
+    pwm_2.start(0)
+    for dc in range(0, 181, 5):
+        pwm_2.ChangeDutyCycle(dc / 18 + 2)
+
+        # Pause at 180 degrees for 2 seconds
+    time.sleep(1)
+
+        # Move from 180 to 0 degrees
+    for dc in range(180, -1, -5):
+        pwm_2.ChangeDutyCycle(dc / 18 + 2)
+            
+
+        # Pause at 0 degrees for 2 seconds
+    time.sleep(1)
 
 # Function to control the feeder
 def control_feeder():
-    action_label.config(text="Dispensing using feeder")
+    action_label.config(text="Feed fishes")
     # Simulate servo control for the feeder
     # Adjust duty cycle as needed for your servo and setup
-    feeder_pwm.ChangeDutyCycle(7)  # Change duty cycle for appropriate movement
+    #feeder_pwm.ChangeDutyCycle(7)  # Change duty cycle for appropriate movement
+    pwm_3.start(0)
+    for dc in range(0, 181, 5):
+        pwm_3.ChangeDutyCycle(dc / 18 + 2)
+
+        # Pause at 180 degrees for 2 seconds
+    time.sleep(1)
+
+        # Move from 180 to 0 degrees
+    for dc in range(180, -1, -5):
+        pwm_3.ChangeDutyCycle(dc / 18 + 2)
+            
+
+        # Pause at 0 degrees for 2 seconds
+    time.sleep(1)
+   # pwm_3.start(0)
 
 # MQTT callback when a message is received
 def on_message(client, userdata, message):
     ph_value = float(message.payload.decode("utf-8"))
     update_ph_label(ph_value)
-    if ph_value < 7:
+    if ph_value < 6:
         control_servo_1()
     elif ph_value > 8:
         control_servo_2()
+    #
+        
 
 # Function to update the pH label in the GUI
 def update_ph_label(value):
